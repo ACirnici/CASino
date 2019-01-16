@@ -33,7 +33,7 @@ module CASino::SessionsHelper
 
   def sign_in(authentication_result, options = {})
     tgt = acquire_ticket_granting_ticket(authentication_result, request.user_agent, request.remote_ip, options)
-    create_login_attempt(tgt.user, true)
+    create_login_attempt(tgt.user, tgt.user.username, true)
     set_tgt_cookie(tgt)
     handle_signed_in(tgt, options)
   end
@@ -52,15 +52,16 @@ module CASino::SessionsHelper
   end
 
   def log_failed_login(username)
-    CASino::User.where(username: username).each do |user|
-      create_login_attempt(user, false)
-    end
+    user = CASino::User.find_by(username: username)
+    create_login_attempt(user, username, false)
   end
 
-  def create_login_attempt(user, successful)
-    user.login_attempts.create! successful: successful,
-                                user_ip: request.ip,
-                                user_agent: request.user_agent
+  def create_login_attempt(user, username, successful)
+    CASino::LoginAttempt.create! user: user,
+                                 username: username,
+                                 successful: successful,
+                                 user_ip: request.ip,
+                                 user_agent: request.user_agent
   end
 
   private
