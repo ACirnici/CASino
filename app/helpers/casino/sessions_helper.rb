@@ -51,14 +51,15 @@ module CASino::SessionsHelper
     cookies.delete :tgt
   end
 
-  def log_failed_login(username)
+  def log_failed_login(username, service)
     user = CASino::User.find_by(username: username)
-    create_login_attempt(user, username, false)
+    create_login_attempt(user, username, service, false)
   end
 
-  def create_login_attempt(user, username, successful)
+  def create_login_attempt(user, username, service, successful)
     CASino::LoginAttempt.create! user: user,
                                  username: username,
+                                 service: service,
                                  successful: successful,
                                  user_ip: request.ip,
                                  user_agent: request.user_agent
