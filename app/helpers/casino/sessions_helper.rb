@@ -31,9 +31,9 @@ module CASino::SessionsHelper
     !current_ticket_granting_ticket.nil?
   end
 
-  def sign_in(authentication_result, options = {})
+  def sign_in(authentication_result, service, options = {})
     tgt = acquire_ticket_granting_ticket(authentication_result, request.user_agent, request.remote_ip, options)
-    create_login_attempt(tgt.user, tgt.user.username, true)
+    create_login_attempt(tgt.user, tgt.user.username, service, true)
     set_tgt_cookie(tgt)
     handle_signed_in(tgt, options)
   end
